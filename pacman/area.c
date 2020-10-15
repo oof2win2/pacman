@@ -62,9 +62,14 @@ void printArea(int area[][MAXWIDTH], struct areaSize lvlDat) {
                 printf(".");
             }
             else if (area[y][x] == FREE) {
-                setBackgroundColor(CYAN);
+                setBackgroundColor(AREA_BGCOLOR);
                 setColor(GREEN);
                 printf(" ");
+            }
+            else if (area[y][x] >= GHOSTS_START && area[y][x] <= GHOSTS_END) {
+                setColor(ghostSkins[ghosts[area[y][x] - GHOSTS_START].skin].color);
+                setBackgroundColor(ghostSkins[ghosts[area[y][x] - GHOSTS_START].skin].bgcolor);
+                printf("%s", ghostSkins[ghosts[area[y][x] - GHOSTS_START].skin].c);
             }
             else {
                 printf("?");
