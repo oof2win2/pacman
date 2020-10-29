@@ -58,18 +58,22 @@ struct ghost {
 };
 
 struct key {
-    char key;           // key names (wasd)
+    int key;                // key names (wasd)
     int dx, dy;             // change in x and y
 };
 
 struct key keys[] = {
     {'w', 0, -1},
+    {'W', 0, -1},
     {KEY_UP, 0, -1},
     {'a', -1, 0},
+    {'A', -1, 0},
     {KEY_LEFT, -1, 0},
     {'s', 0, 1},
+    {'S', 0, 1},
     {KEY_DOWN, 0, 1},
     {'d', 1, 0},
+    {'D', 1, 0},
     {KEY_RIGHT, 1, 0},
 };
 
