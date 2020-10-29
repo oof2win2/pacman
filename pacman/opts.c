@@ -57,6 +57,22 @@ struct ghost {
     int skin; // index into array ghostSkins
 };
 
+struct key {
+    char key;           // key names (wasd)
+    int dx, dy;             // change in x and y
+};
+
+struct key keys[] = {
+    {'w', 0, -1},
+    {KEY_UP, 0, -1},
+    {'a', -1, 0},
+    {KEY_LEFT, -1, 0},
+    {'s', 0, 1},
+    {KEY_DOWN, 0, 1},
+    {'d', 1, 0},
+    {KEY_RIGHT, 1, 0},
+};
+
 struct ghostSkin ghostSkins[] = {
     {"@",  YELLOW, AREA_BGCOLOR}, // 0
     {"A",  RED,    AREA_BGCOLOR}, // 1

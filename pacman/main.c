@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include "../utils/rlutil.h"
 
+#define NUM_KEYS 8 //the number of total keys in the game
+
 #include "opts.c"
 #include "area.c"
 
@@ -20,6 +22,7 @@ int main()
 {
     int w,h;
     int i,j;
+    int key;
     struct areaSize as;
     int screen[HEIGHT][WIDTH];
     
@@ -33,12 +36,21 @@ int main()
     printArea(screen, as);
 //    printGhostsPositions(screen, as);
     
-    getch();
-    cls();
-    movePacman(area, as, ghosts, 5, 5);
-    putGhostsToArea(area, as, ghosts, 6, screen);
-    printArea(screen, as);
-    
+    while (1)
+    {
+        if (kbhit()) {
+            key = getkey();
+            for (int i = 0; i < 8; i++) {
+                if (keys[i].key == key) {
+                    movePacman(area, as, ghosts, keys[i].dx, keys[i].dy);
+                    putGhostsToArea(area, as, ghosts, 6, screen);
+                    cls();
+                    printArea(screen, as);
+                }
+            }
+        }
+        msleep(10);
+    }
     setColor(GREY);
     setBackgroundColor(BLACK);
     
