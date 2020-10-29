@@ -1,81 +1,106 @@
-//
-//  area.c
-//  pacman
-//
-//  Created by Honza on 15/10/2020.
-//  Copyright © 2020 oof2win2. All rights reserved.
-//
-
-#include <stdio.h>
-
-
-struct areaSize getAreaSize(int area[][MAXWIDTH]) {
-    struct areaSize res;
-    res.w = 0;              // just in case values not found
-    res.h = 0;              // -''-
-    int numFree = 0;        // number of free spaces found
-    for (int y = MAXHEIGHT - 1; y >= 0 && !res.h; y--) { // to calculate max height
-        numFree = 0;
-        for (int x = MAXWIDTH - 1; x >= 0; x--) {
-            if (area[y][x] == 0)
-                numFree++;          // add to the number of free spaces
+struct areaSize getAreaSize(int a[][WIDTH])
+{
+    struct areaSize s;
+    int i, j;
+    
+    s.w = -1;
+    for (i = WIDTH - 1; i >= 0; i--) {
+        for (j = 0; j < HEIGHT; j++) {
+            if (a[j][i] != 0) {
+                s.w = i + 1;
+                break;
+            }
         }
-        if (numFree != MAXWIDTH) {
-            res.h = y + 1;          // the height of the game
-            numFree = 0;
+        if (s.w != -1)
             break;
+    }
+    
+    s.h = -1;
+    for (i = HEIGHT - 1; i > 0; i--) {
+        for (j = 0; j < WIDTH; j++) {
+            if (a[i][j] != 0) {
+                s.h = i + 1;
+                return s;
+            }
         }
     }
     
-    for (int x = MAXWIDTH - 1; x >= 0 && !res.w; x--) { // calculate max width
-        numFree = 0;
-        for (int y = MAXHEIGHT - 1; y >= 0; y--) {
-            if (area[y][x] == 0)
-                numFree++;          // add to the number of free spaces
-        }
-        if (numFree != MAXHEIGHT) {
-            res.w = x + 1;          // the width of the game
-            break;
-        }
-    }
-    return res;
+    return s;
 }
 
-void printArea(int area[][MAXWIDTH], struct areaSize lvlDat) {
-    int w = lvlDat.w;
-    int h = lvlDat.h;
+void printArea(int a[][WIDTH], struct areaSize s)
+{
+    int i, j;
     
-    cls();
-    saveDefaultColor();
-    
-    for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            if (area[y][x] == WALL) {
-                setColor(BLUE);
+    for (i = 0; i < s.h; i++) {
+        for (j = 0; j < s.w; j++) {
+            if (a[i][j] == WALL) {
                 setBackgroundColor(RED);
-                printf("X");
-                resetColor();
-            }
-            else if (area[y][x] == DOT) {
-                setColor(WHITE);
-                setBackgroundColor(AREA_BGCOLOR);
-                printf(".");
-            }
-            else if (area[y][x] == FREE) {
-                setBackgroundColor(AREA_BGCOLOR);
-                setColor(GREEN);
+                setColor(LIGHTBLUE);
                 printf(" ");
             }
-            else if (area[y][x] >= GHOSTS_START && area[y][x] <= GHOSTS_END) {
-                setColor(ghostSkins[ghosts[area[y][x] - GHOSTS_START].skin].color);
-                setBackgroundColor(ghostSkins[ghosts[area[y][x] - GHOSTS_START].skin].bgcolor);
-                printf("%s", ghostSkins[ghosts[area[y][x] - GHOSTS_START].skin].c);
+            else if (a[i][j] == DOT) {
+                setBackgroundColor(AREA_BGCOLOR);
+                setColor(YELLOW);
+                printf(".");
+            }
+            else if (a[i][j] == FREE) {
+                setBackgroundColor(AREA_BGCOLOR);
+                printf(" ");
+            }
+            else if (a[i][j] >= GHOSTS_START && a[i][j] <= GHOSTS_END) {
+                setColor(ghostSkins[ ghosts[ a[i][j] - GHOSTS_START ].skin ].color);
+                setBackgroundColor(ghostSkins[ ghosts[ a[i][j] - GHOSTS_START ].skin ].bgcolor);
+                printf("%s", ghostSkins[ ghosts[ a[i][j] - GHOSTS_START ].skin ].c);
             }
             else {
+                setBackgroundColor(AREA_BGCOLOR);
+                setColor(RED);
                 printf("?");
             }
         }
         printf("\n");
     }
+    
+    setBackgroundColor(BLACK);
+    setColor(GREY);
 }
 
+/*
+ Vezmeme pole a_in[] a zkopírujeme ho do pole a_out[].
+ Vezmeme duchy z pole ghosts[] a zkopírujeme je do pole a_out[].
+ */
+void putGhostsToArea(int a_in[][WIDTH], struct areaSize s, struct ghost ghosts[], int ghosts_num, int a_out[][WIDTH])
+{
+    int i, j;
+    
+    for (i = 0; i < s.h; i++) {
+        for (j = 0; j < s.w; j++) {
+            a_out[i][j] = a_in[i][j];
+        }
+    }
+    
+    for (i = 0; i < ghosts_num; i++) {
+        a_out[ ghosts[i].y ][ ghosts[i].x ] = GHOSTS_START + i;
+    }
+}
+
+
+void printGhostsPositions(int a[][WIDTH], struct areaSize s)
+{
+    int i, j;
+    
+    for (i = 0; i < s.h; i++) {
+        for (j = 0; j < s.w; j++) {
+            if (a[i][j] >= GHOSTS_START && a[i][j] <= GHOSTS_END) {
+                printf("Ghost ID: %d, x: %d, y: %d\n", a[i][j] - GHOSTS_START, j, i);
+            }
+        }
+    }
+}
+
+void movePacman(int a[][WIDTH], struct areaSize s, struct ghost ghosts[], int dx, int dy)
+{
+    ghosts[0].x += dx;
+    ghosts[0].y += dy;
+}
