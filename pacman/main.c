@@ -31,15 +31,17 @@ int main()
     int key;
     struct areaSize as;
     int screen[HEIGHT][WIDTH];
+    int oldScreen[HEIGHT][WIDTH];
     
     setBackgroundColor(BLACK);
     cls();
+    hidecursor();
     
     as = getAreaSize(area);
-    putGhostsToArea(area, as, ghosts, 6, screen);
+    putGhostsToArea(area, as, ghosts, 6, oldScreen);
 //    printf("%d %d\n", as.w, as.h);
     
-    printArea(screen, as);
+    printArea(oldScreen, as);
 //    printGhostsPositions(screen, as);
     
     while (1)
@@ -51,6 +53,7 @@ int main()
                 if (keys[i].key == key) {
                     movePacman(area, as, ghosts, keys[i].dx, keys[i].dy);
                     putGhostsToArea(area, as, ghosts, 6, screen);
+    //              printAreaChanges(screen, oldScreen, as); // use this version to increase performance
                     cls();
                     printArea(screen, as);
                     break;
@@ -61,6 +64,7 @@ int main()
     }
     setColor(GREY);
     setBackgroundColor(BLACK);
+    showcursor();
     
     return 0;
 }
