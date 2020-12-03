@@ -1,4 +1,11 @@
-#define AREA_BGCOLOR   CYAN
+#define AREA_BGCOLOR        BLUE
+#define STATUS_BGCOLOR      BLACK
+#define STATUS_TEXTCOLOR    GREY
+#define STATUS_DIGITSCOLOR  LIGHTGREEN
+#define SCORE_DIGITS    4
+#define LIVES_DIGITS    1
+#define LEVEL_DIGITS    1
+
 
     // zed ... 1
     // volne pole ... 2
@@ -48,39 +55,19 @@ struct areaSize {
 };
 
 struct ghostSkin {
-    char c[4]; // 3 chars and '\0'
+    char c[4]; // 3 znaky a nula
     int  color, bgcolor;
 };
 
 struct ghost {
     int x, y;
-    int skin; // index into array ghostSkins
-};
-
-struct key {
-    int key;                // key names (wasd)
-    int dx, dy;             // change in x and y
-};
-
-struct key keys[] = {
-    {'w', 0, -1},
-    {'W', 0, -1},
-    {KEY_UP, 0, -1},
-    {'a', -1, 0},
-    {'A', -1, 0},
-    {KEY_LEFT, -1, 0},
-    {'s', 0, 1},
-    {'S', 0, 1},
-    {KEY_DOWN, 0, 1},
-    {'d', 1, 0},
-    {'D', 1, 0},
-    {KEY_RIGHT, 1, 0},
+    int skin; // index do pole ghostSkins
 };
 
 struct ghostSkin ghostSkins[] = {
     {"@",  YELLOW, AREA_BGCOLOR}, // 0
     {"A",  RED,    AREA_BGCOLOR}, // 1
-    {"B",  BLUE,   AREA_BGCOLOR}, // 2
+    {"B",  CYAN,   AREA_BGCOLOR}, // 2
     {"C",  GREEN,  YELLOW}        // 3
 };
 
@@ -91,4 +78,34 @@ struct ghost ghosts[] = {
     {6,  6, 1}, // 3
     {5,  3, 2}, // 4
     {13,12, 3}, // 5
+};
+
+struct key_move {
+    int key;
+    int dx, dy;
+};
+
+struct key_move key_moves[] = {
+    {KEY_UP, 0, -1},
+    {KEY_DOWN, 0, 1},
+    {KEY_LEFT, -1, 0},
+    {KEY_RIGHT, 1, 0},
+    {'w', 0, -1},
+    {'s', 0, 1},
+    {'a', -1, 0},
+    {'d', 1, 0},
+    {'W', 0, -1},
+    {'S', 0, 1},
+    {'A', -1, 0},
+    {'D', 1, 0},
+};
+
+struct {
+    int score;
+    int level;
+    int lives;
+    int height; // výška herního plánu
+    int totGhosts; //total number of ghosts + pacman
+} game = {
+    0, 1, 3, 10
 };

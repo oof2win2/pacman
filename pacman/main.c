@@ -1,24 +1,6 @@
-//
-//  main.c
-//  pacman
-//
-//  Created by Honza on 17/09/2020.
-//  Copyright © 2020 oof2win2. All rights reserved.
-//
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "../utils/rlutil.h"
-
-// dark magic to make unix systems work
-#ifndef _WIN32
-    #undef  KEY_ENTER
-    #define KEY_ENTER 10
-    #undef  CLOCKS_PER_SEC
-    #define CLOCKS_PER_SEC 15000
-#endif
 
 #include "opts.c"
 #include "area.c"
@@ -26,48 +8,46 @@
 
 int main()
 {
-    int w,h;
-    int i,j;
-    int key;
     struct areaSize as;
-    int screen[HEIGHT][WIDTH];
-    int oldScreen[HEIGHT][WIDTH];
-    
+    int screen[HEIGHT][WIDTH], old_screen[HEIGHT][WIDTH];
+    int i, key;
+    game.totGhosts = sizeof(ghosts);
     setBackgroundColor(BLACK);
     cls();
-    hidecursor();
+    
+        // Pacman nesmi mit pod sebou tecku na zacatku
+    if (area[ghosts[0].y][ghosts[0].x] == DOT)
+        area[ghosts[0].y][ghosts[0].x] = FREE;
     
     as = getAreaSize(area);
-    putGhostsToArea(area, as, ghosts, 6, oldScreen);
-//    printf("%d %d\n", as.w, as.h);
+    game.height = as.h;
+    putGhostsToArea(area, as, ghosts, 6, old_screen);
+        //printf("%d %d\n", as.w, as.h);
+    printArea(old_screen, as);
     
-    printArea(oldScreen, as);
-//    printGhostsPositions(screen, as);
+        //printGhostsPositions(screen, as);
     
-    while (1)
-    {
-        if (kbhit()) {
+    hidecursor();
+    while (1) {
+//        if (kbhit()) {
             key = getkey();
-            // the sizeof(keys) gets the byte size of array
-            for (int i = 0; i < (sizeof(keys)/sizeof(key)); i++) {
-                if (keys[i].key == key) {
-                    movePacman(area, as, ghosts, keys[i].dx, keys[i].dy);
-                    putGhostsToArea(area, as, ghosts, 6, screen);
-    //              printAreaChanges(screen, oldScreen, as); // use this version to increase performance
-                    cls();
-                    printArea(screen, as);
+            
+            for (i = 0; i < sizeof(key_moves)/sizeof(struct key_move); i++) {
+                if (key_moves[i].key == key) {
+                    movePacman(area, as, ghosts, key_moves[i].dx, key_moves[i].dy);
                     break;
                 }
             }
-        }
-        msleep(10);
+            
+            putGhostsToArea(area, as, ghosts, 6, screen);
+            printAreaChanges(old_screen, screen, as);
+//            printArea(screen, as);
+            printMessage("hello there", as);
+//        }
     }
+    showcursor();
     setColor(GREY);
     setBackgroundColor(BLACK);
-    showcursor();
     
     return 0;
 }
-
-
-

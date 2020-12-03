@@ -2,7 +2,6 @@ struct areaSize getAreaSize(int a[][WIDTH])
 {
     struct areaSize s;
     int i, j;
-    
     s.w = -1;
     for (i = WIDTH - 1; i >= 0; i--) {
         for (j = 0; j < HEIGHT; j++) {
@@ -14,7 +13,6 @@ struct areaSize getAreaSize(int a[][WIDTH])
         if (s.w != -1)
             break;
     }
-    
     s.h = -1;
     for (i = HEIGHT - 1; i > 0; i--) {
         for (j = 0; j < WIDTH; j++) {
@@ -24,75 +22,115 @@ struct areaSize getAreaSize(int a[][WIDTH])
             }
         }
     }
-    
     return s;
 }
 
-void printAreaChar(int currChar)
+// prints one sign from the area, x y pos needs to be done already
+void printAreaChar(int f)
 {
-    // This function prints a single character from the array of the map, single point
-    
-    if (currChar == WALL) {
+    if (f == WALL) {
         setBackgroundColor(RED);
         setColor(LIGHTBLUE);
         printf(" ");
     }
-    else if (currChar == DOT) {
+    else if (f == DOT) {
         setBackgroundColor(AREA_BGCOLOR);
         setColor(YELLOW);
         printf(".");
     }
-    else if (currChar == FREE) {
+    else if (f == FREE) {
         setBackgroundColor(AREA_BGCOLOR);
         printf(" ");
     }
-    else if (currChar >= GHOSTS_START && currChar <= GHOSTS_END) {
-        setColor(ghostSkins[ghosts[currChar - GHOSTS_START ].skin].color);
-        setBackgroundColor(ghostSkins[ghosts[currChar - GHOSTS_START].skin ].bgcolor);
-        printf("%s", ghostSkins[ghosts[currChar - GHOSTS_START].skin].c);
+    else if (f >= GHOSTS_START && f <= GHOSTS_END) {
+        setColor(ghostSkins[ ghosts[ f - GHOSTS_START ].skin ].color);
+        setBackgroundColor(ghostSkins[ ghosts[ f - GHOSTS_START ].skin ].bgcolor);
+        printf("%s", ghostSkins[ ghosts[ f - GHOSTS_START ].skin ].c);
     }
     else {
         setBackgroundColor(AREA_BGCOLOR);
         setColor(RED);
         printf("?");
     }
+}
+
+void home() {
+    gotoxy(1, HEIGHT+15);
+}
+
+// prints the changes in area
+void printAreaChanges(int o[][WIDTH], int n[][WIDTH], struct areaSize s)
+{
+    int i, j;
+    
+    for (i = 0; i < s.h; i++) {
+        for (j = 0; j < s.w; j++) {
+            if (o[i][j] != n[i][j]) {
+                gotoxy(j + 1, i + 1);
+                printAreaChar(n[i][j]);
+                home();
+                o[i][j] = n[i][j];
+            }
+        }
+    }
+    home();
     
     setBackgroundColor(BLACK);
     setColor(GREY);
 }
 
+
+// prints $num to the screen, adds enough spaces so the number is $length long
+void printNum(int num, int length)
+{
+    int digits = 1, mulTen = 10, i;
+    // get the amount of digits from that the number has
+    for (; num >= mulTen; digits++, mulTen *= 10)
+    for (i = 0; i < length - digits; i++)
+        printf(" "); // print the spaces before it
+    printf("%d", num);
+    home();
+}
+
+// prints the whole area and stats
 void printArea(int a[][WIDTH], struct areaSize s)
 {
-    for (int y = 0; y < s.h; y++) {
-        for (int x = 0; x < s.w; x++) {
-            printAreaChar(a[y][x]);
-        }
-        printf("\n");
-    }
-    return;
-}
-
-void printAreaChanges(int newA[][WIDTH], int oldA[][WIDTH], struct areaSize s)
-{
-    // This function prints only the changes in the game
+    int i, j;
     
-    for (int y = 0; y < s.h; y++) {
-        for (int x = 0; x < s.w; x++) {
-            if (newA[y][x] != oldA[y][x]) {
-                gotoxy(x+1, y+1);
-                printAreaChar(newA[y][x]);
-                oldA[y][x] = newA[y][x];
-            }
+    for (i = 0; i < s.h; i++) {
+        for (j = 0; j < s.w; j++) {
+            printAreaChar(a[i][j]);
         }
         printf("\n");
     }
-    return;
+    
+    setBackgroundColor(STATUS_BGCOLOR);
+    setColor(STATUS_TEXTCOLOR);
+    printf("LEVEL: ");
+    setColor(STATUS_DIGITSCOLOR);
+    printNum(game.level, LEVEL_DIGITS);
+    setColor(STATUS_TEXTCOLOR);
+    printf(" LIVES: ");
+    setColor(STATUS_DIGITSCOLOR);
+    printNum(game.lives, LIVES_DIGITS);
+    setColor(STATUS_TEXTCOLOR);
+    printf(" SCORE: ");
+    setColor(STATUS_DIGITSCOLOR);
+    printNum(game.score, SCORE_DIGITS);
+    home();
 }
 
-/*
- Vezmeme pole a_in[] a zkopírujeme ho do pole a_out[].
- Vezmeme duchy z pole ghosts[] a zkopírujeme je do pole a_out[].
- */
+// changes the score and prints digits
+void changeScore(int points)
+{
+    game.score += points; // add points
+    gotoxy(24 + LEVEL_DIGITS + LIVES_DIGITS, game.height + 1); // go to the correct position on-screen
+    setBackgroundColor(STATUS_BGCOLOR);
+    setColor(STATUS_DIGITSCOLOR);
+    printNum(game.score, SCORE_DIGITS); // print the actual digits on the spot, the xy cursor is already prset above
+    home();
+}
+
 void putGhostsToArea(int a_in[][WIDTH], struct areaSize s, struct ghost ghosts[], int ghosts_num, int a_out[][WIDTH])
 {
     int i, j;
@@ -104,10 +142,9 @@ void putGhostsToArea(int a_in[][WIDTH], struct areaSize s, struct ghost ghosts[]
     }
     
     for (i = 0; i < ghosts_num; i++) {
-        a_out[ ghosts[i].y ][ ghosts[i].x ] = GHOSTS_START + i;
+        a_out[ghosts[i].y][ghosts[i].x] = GHOSTS_START + i;
     }
 }
-
 
 void printGhostsPositions(int a[][WIDTH], struct areaSize s)
 {
@@ -124,6 +161,47 @@ void printGhostsPositions(int a[][WIDTH], struct areaSize s)
 
 void movePacman(int a[][WIDTH], struct areaSize s, struct ghost ghosts[], int dx, int dy)
 {
+    int x, y;
+    
+    // cant go out of game area
+    x = ghosts[0].x + dx;
+    y = ghosts[0].y + dy;
+    if (x < 0 || y < 0 || x >= s.w || y >= s.h)
+        return;
+    
+    // walls stop pacman
+    if (a[y][x] == WALL)
+        return;
+    
+    // collect dots and add 10 pts for each dot
+    if (a[y][x] == DOT) {
+        a[y][x] = FREE;
+        changeScore(10);
+    }
+    
     ghosts[0].x += dx;
     ghosts[0].y += dy;
+}
+
+void printMessage(char msg[], struct areaSize s)
+{
+    // let's trust the programmer that the message length is ok
+    // message can be only 1 line long
+    int startx, starty;
+    int msgLen = 0, numLines = 1;
+    for (int i = 0; msg[i] != '\0'; i++) msgLen++;
+    for (int i = 0; msg[i] != '\0'; i++) if (msg[i] == '\n') numLines++;
+    startx = (int)(s.w/2);
+    starty = (int)(s.h/2);
+    startx -= msgLen/2+1;
+    gotoxy(startx, starty);
+    for (int y = 0; y < msgLen+4; y++) {
+        printf("*");
+    }
+    gotoxy(startx, starty+1);
+    printf("* %s *", msg);
+    gotoxy(startx, starty+2);
+    for (int y = 0; y < msgLen+4; y++) {
+        printf("*");
+    }
 }
