@@ -31,6 +31,7 @@
 #define  PLAYER  GHOSTS_START
 #define  P       PLAYER
 
+int old_screen[HEIGHT][WIDTH]; // create screen
 
 int area[HEIGHT][WIDTH] = {
     {X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,0,X,X,X,X,X,X,X,X,X,X,X},
@@ -100,12 +101,43 @@ struct key_move key_moves[] = {
     {'D', 1, 0},
 };
 
+// modes:
+//  1: before start
+//  2: game playing
+//  3: pause
+//  4: win
+//  5: dead
+//  6: waiting for level starts
+#define MODE_PRERUN 1   // before running the game
+#define MODE_PLAY   2   // playing, only mode when moving
+#define MODE_PAUSE  3   // when game is paused
+#define MODE_WIN    4   // upon winning
+#define MODE_CONFE  5   // confirm exit
+#define MODE_DEAD   6   // when pacman fails and dies
+#define MODE_WAITS  7   // wait when level starts
+
 struct {
     int score;
     int level;
     int lives;
-    int height; // výška herního plánu
+    int height; // map game height? not sure why its here, keep it there because it breaks otherwise
+    int width;  // map width
     int totGhosts; //total number of ghosts + pacman
+    int mode;
+    int msgStartX;
+    int msgStartY;
+    int msgWidth;
+    int msgHeight;
 } game = {
-    0, 1, 3, 10
+    0,  // score
+    1,  // level
+    3,  // lives
+    0,  // height
+    0,  // width
+    10, // total number of ghosts
+    0,  // mode
+    1,  // msg start x
+    0,  // msg start y
+    0,  // msg width
+    0,  // msg height
 };

@@ -54,7 +54,9 @@ void printAreaChar(int f)
     }
 }
 
+// annoying stuff
 void home() {
+    fflush(stdout);
     gotoxy(1, HEIGHT+15);
 }
 
@@ -124,10 +126,12 @@ void printArea(int a[][WIDTH], struct areaSize s)
 void changeScore(int points)
 {
     game.score += points; // add points
-    gotoxy(24 + LEVEL_DIGITS + LIVES_DIGITS, game.height + 1); // go to the correct position on-screen
+    // go to the correct position on-screen
+    gotoxy(24 + LEVEL_DIGITS + LIVES_DIGITS, game.height + 1);
     setBackgroundColor(STATUS_BGCOLOR);
     setColor(STATUS_DIGITSCOLOR);
-    printNum(game.score, SCORE_DIGITS); // print the actual digits on the spot, the xy cursor is already prset above
+    // print the actual digits on the spot, the xy cursor is already prset above
+    printNum(game.score, SCORE_DIGITS);
     home();
 }
 
@@ -183,25 +187,59 @@ void movePacman(int a[][WIDTH], struct areaSize s, struct ghost ghosts[], int dx
     ghosts[0].y += dy;
 }
 
-void printMessage(char msg[], struct areaSize s)
+void printMessage(char msg[])
 {
-    // let's trust the programmer that the message length is ok
-    // message can be only 1 line long
     int startx, starty;
     int msgLen = 0, numLines = 1;
     for (int i = 0; msg[i] != '\0'; i++) msgLen++;
-    for (int i = 0; msg[i] != '\0'; i++) if (msg[i] == '\n') numLines++;
-    startx = (int)(s.w/2);
-    starty = (int)(s.h/2);
-    startx -= msgLen/2+1;
+    for (int i = 0; msg[i] != '\0'; i++) if (msg[i] == '\n') numLines++; // doesnt do anything
+    startx = (int)(game.width/2);
+    starty = (int)(HEIGHT/2);
+    game.msgStartY = starty;
+    game.msgStartX = startx;
     gotoxy(startx, starty);
-    for (int y = 0; y < msgLen+4; y++) {
+    for (int y = 0; y < msgLen+4; y++) {    //  4 works here
         printf("*");
     }
     gotoxy(startx, starty+1);
     printf("* %s *", msg);
     gotoxy(startx, starty+2);
-    for (int y = 0; y < msgLen+4; y++) {
+    for (int y = 0; y < msgLen+4; y++) {    // 4 works here
         printf("*");
     }
+    game.msgHeight = 2;
+    game.msgWidth = msgLen+4;
+    home();
+}
+
+void clearMessage()
+{
+    for (int y = game.msgStartY; y < (game.msgHeight+game.msgStartY+1); y++) {
+        gotoxy(game.msgStartX, y);
+        for (int x = game.msgStartX; x < (game.msgWidth+game.msgStartX); x++) {
+            if (x <= game.width && y <= game.height) {
+                printAreaChar(old_screen[y-1][x-1]);
+            } else {
+                setBackgroundColor(STATUS_BGCOLOR);
+                printf(" ");
+            }
+            
+        }
+    }
+    home();
+}
+
+void changeMode(int newMode)
+{
+    if (game.mode == 3) {
+        clearMessage();
+    }
+
+    if (newMode == 3) {
+        printMessage("Game is paused.");
+    }
+
+    game.mode = newMode;
+    home();
+    return;
 }
