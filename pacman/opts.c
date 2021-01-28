@@ -2,6 +2,8 @@
 #define STATUS_BGCOLOR      BLACK
 #define STATUS_TEXTCOLOR    GREY
 #define STATUS_DIGITSCOLOR  LIGHTGREEN
+#define MSG_COLOR           GREEN
+#define MSG_BGCOLOR         BLACK
 #define SCORE_DIGITS    4
 #define LIVES_DIGITS    1
 #define LEVEL_DIGITS    1

@@ -42,21 +42,27 @@ int main()
     while (1) {
         if (kbhit()) {
             key = getkey();
+            if (game.mode == 7) changeMode(MODE_PLAY);
+            if (key == KEY_SPACE) {
+                if (game.mode == MODE_PAUSE) changeMode(MODE_PLAY);
+                else changeMode(MODE_PAUSE);
+            }
+            if (game.mode == 1) changeMode(MODE_WAITS);
+            if (key == KEY_ESCAPE) {
+                confirmExit();
+            }
             
             for (i = 0; i < sizeof(key_moves)/sizeof(struct key_move); i++) {
                 if (key_moves[i].key == key) {
-                    movePacman(area, as, ghosts, key_moves[i].dx, key_moves[i].dy);
+                    if (game.mode == MODE_PLAY)
+                        movePacman(area, as, ghosts, key_moves[i].dx, key_moves[i].dy);
                     break;
                 }
             }
-            
-            putGhostsToArea(area, as, ghosts, 6, screen);
-            printAreaChanges(old_screen, screen, as);
-//            printArea(screen, as);
-            printMessage("hellooooooooooooo");
-//            msleep(2000);
-            clearMessage();
-//            msleep(1);
+            if (game.mode == MODE_PLAY) {
+                putGhostsToArea(area, as, ghosts, 6, screen);
+                printAreaChanges(old_screen, screen, as);
+            }
         }
         msleep(1);
     }

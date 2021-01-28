@@ -189,32 +189,68 @@ void movePacman(int a[][WIDTH], struct areaSize s, struct ghost ghosts[], int dx
 
 void printMessage(char msg[])
 {
+    saveDefaultColor();
+    setColor(MSG_COLOR);
+    setBackgroundColor(MSG_BGCOLOR);
+    int totLineNum = 0, maxLineLen = 0;
+    
+    int currLineLen = 0;
+    int i = 0;
+    do {
+        if (msg[i] == '\n' || msg[i] == '\0') {
+            totLineNum++;
+            if (maxLineLen < currLineLen) maxLineLen = currLineLen;
+            currLineLen = 0;
+        } else {
+            currLineLen++;
+        }
+    } while ( msg[i++] != '\0');
+    
     int startx, starty;
-    int msgLen = 0, numLines = 1;
-    for (int i = 0; msg[i] != '\0'; i++) msgLen++;
-    for (int i = 0; msg[i] != '\0'; i++) if (msg[i] == '\n') numLines++; // doesnt do anything
-    startx = (int)(game.width/2);
-    starty = (int)(HEIGHT/2);
-    game.msgStartY = starty;
-    game.msgStartX = startx;
+    if (maxLineLen + 6 >= game.width) startx = 1;
+    else startx = 1 + (game.width - (maxLineLen + 6))/2;
+    if (totLineNum + 4 >= game.height) starty = 1;
+    else starty = 1 + (game.height - (totLineNum + 4))/2;
+    
+    // box top
     gotoxy(startx, starty);
-    for (int y = 0; y < msgLen+4; y++) {    //  4 works here
-        printf("*");
-    }
+    for (int i = 0; i < maxLineLen + 6; i++) printf("*");
     gotoxy(startx, starty+1);
-    printf("* %s *", msg);
-    gotoxy(startx, starty+2);
-    for (int y = 0; y < msgLen+4; y++) {    // 4 works here
-        printf("*");
+    printf("*");
+    for (int i = 0; i < maxLineLen + 4; i++) printf(" ");
+    printf("*");
+    
+    int c_i = 0;
+    for (int lineNum = 1; lineNum <= totLineNum; lineNum++) {
+        gotoxy(startx, starty+lineNum+1);
+        printf("*  ");
+        for (int i = 0; i < maxLineLen; i++) {
+            if (msg[c_i] != '\n' && msg[c_i] != '\0')
+                printf("%c", msg[c_i++]);
+            else
+                printf(" ");
+        }
+        c_i++;
+        printf("  *");
     }
-    game.msgHeight = 2;
-    game.msgWidth = msgLen+4;
+    gotoxy(startx, starty+totLineNum+2);
+    printf("*");
+    for (int i = 0; i < maxLineLen + 4; i++) printf(" ");
+    printf("*");
+    gotoxy(startx, starty+totLineNum+3);
+    for (int i = 0; i < maxLineLen + 6; i++) printf("*");
+    
+    game.msgStartX = startx;
+    game.msgStartY = starty;
+    game.msgHeight = totLineNum + 4;
+    game.msgWidth  = maxLineLen + 6;
     home();
+    resetColor();
 }
 
 void clearMessage()
 {
-    for (int y = game.msgStartY; y < (game.msgHeight+game.msgStartY+1); y++) {
+    for (int y = game.msgStartY; y < (game.msgHeight+game.msgStartY); y++) {
         gotoxy(game.msgStartX, y);
         for (int x = game.msgStartX; x < (game.msgWidth+game.msgStartX); x++) {
             if (x <= game.width && y <= game.height) {
@@ -223,7 +259,6 @@ void clearMessage()
                 setBackgroundColor(STATUS_BGCOLOR);
                 printf(" ");
             }
-            
         }
     }
     home();
@@ -236,10 +271,18 @@ void changeMode(int newMode)
     }
 
     if (newMode == 3) {
-        printMessage("Game is paused.");
+        printMessage("Game is paused\nPress SPACE to unpause");
     }
 
     game.mode = newMode;
     home();
     return;
+}
+
+void confirmExit()
+{
+    printMessage("Are you sure you want to exit the game?\nPress ESC again to confirm");
+    int key = getkey();
+    clearMessage();
+    if (key == KEY_ESCAPE) exit(0);
 }
